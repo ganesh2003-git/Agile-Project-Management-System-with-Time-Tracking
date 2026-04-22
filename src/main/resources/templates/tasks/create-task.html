@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Task - APMST</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --accent-color: #3b82f6;
+            --body-bg: #f8fafc;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--body-bg);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: #f8fafc;
+            padding: 24px 16px;
+            position: fixed;
+            width: 260px;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-color);
+            text-align: center;
+            display: block;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        /* --- Modern Form Styling --- */
+        .form-card {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .card-header-clean {
+            background-color: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 25px 40px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            background-color: #fcfdfe;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background-color: #fff;
+        }
+
+        /* Custom file input */
+        .form-control[type="file"] {
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* --- Buttons --- */
+        .btn-pro {
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-pro {
+            background-color: var(--accent-color);
+            border: none;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary-pro:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background-color: #f1f5f9;
+            color: #64748b;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="/dashboard" class="sidebar-brand">APMST PRO</a>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="/dashboard" class="nav-link">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/projects" class="nav-link">📁 Projects</a></li>
+            <li class="nav-item"><a href="/tasks" class="nav-link active">✅ My Tasks</a></li>
+            <li class="nav-item"><a href="/timelog" class="nav-link">⏱️ Time Log</a></li>
+            <li class="nav-item"><a href="/scores/my-score" class="nav-link">🏅 My Score</a></li>
+			<li class="nav-item mb-2">
+			    <a href="/analytics" class="nav-link text-white">
+			        📈 Analytics
+			    </a>
+			</li>
+			
+			<!-- Notifications Bell -->
+			<li class="nav-item mb-2">
+			    <a href="/notifications" class="nav-link text-white">
+			        🔔 Notifications
+			        <span th:if="${unreadCount > 0}"
+			              class="badge bg-danger ms-1"
+			              th:text="${unreadCount}">
+			        </span>
+			    </a>
+			</li>
+			
+            <li class="nav-item"><a href="/scores/leaderboard" class="nav-link">🏆 Leaderboard</a></li>
+            <li class="nav-item mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger fw-bold">🚪 Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="row justify-content-center">
+            <div class="col-md-9 animate__animated animate__fadeInUp">
+                
+                <div class="form-card">
+                    <div class="card-header-clean d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">➕ New Task Assignment</h4>
+                            <p class="text-muted small mb-0">Project Context: <span class="text-primary fw-bold" th:text="${project.name}">Project Name</span></p>
+                        </div>
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">Agile Workflow</span>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5">
+                        <form th:action="@{/tasks/create/{id}(id=${project.id})}"
+                              th:object="${task}"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            <div class="mb-4">
+                                <label class="form-label">Task Summary</label>
+                                <input type="text" th:field="*{title}" class="form-control" 
+                                       placeholder="Briefly describe the objective..." required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Detailed Requirements</label>
+                                <textarea th:field="*{description}" class="form-control" rows="4" 
+                                          placeholder="Provide acceptance criteria or technical notes..."></textarea>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Priority Level</label>
+                                    <select name="priority" class="form-select" required>
+                                        <option th:each="priority : ${priorities}"
+                                                th:value="${priority}"
+                                                th:text="${priority}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Sprint Cycle</label>
+                                    <select name="sprintId" class="form-select">
+                                        <option value="">Backlog (No Sprint)</option>
+                                        <option th:each="sprint : ${sprints}"
+                                                th:value="${sprint.id}"
+                                                th:text="${sprint.name}">
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Assignee</label>
+                                    <select name="assigneeId" class="form-select">
+                                        <option value="">Reserve (Unassigned)</option>
+                                        <option th:each="user : ${users}"
+                                                th:value="${user.id}"
+                                                th:text="${user.fullName} + ' — ' + ${user.role}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Deadline</label>
+                                    <input type="date" th:field="*{dueDate}" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Estimated Effort (Hrs)</label>
+                                    <input type="number" th:field="*{estimatedHours}" class="form-control" 
+                                           step="0.5" placeholder="e.g. 4.5">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Story Points (Complexity)</label>
+                                    <input type="number" th:field="*{storyPoints}" class="form-control" 
+                                           placeholder="e.g. 3">
+                                </div>
+                            </div>
+
+                            <div class="mb-5">
+                                <label class="form-label">Support Documentation</label>
+                                <div class="bg-light p-3 border border-dashed rounded-3">
+                                    <input type="file" name="attachment" class="form-control" 
+                                           accept=".pdf,.doc,.docx,.txt">
+                                    <p class="small text-muted mt-2 mb-0">Max size: 5MB. Format: PDF, DOCX, TXT</p>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                <button type="submit" class="btn btn-pro btn-primary-pro w-100">
+                                    🚀 Create & Sync Task
+                                </button>
+                                <a href="/projects" class="btn btn-pro btn-cancel w-25 text-center">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

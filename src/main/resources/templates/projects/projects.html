@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - APMST</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --accent-color: #3b82f6;
+            --body-bg: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            background-color: var(--body-bg);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: #f8fafc;
+            padding: 24px 16px;
+            position: fixed;
+            width: 260px;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-color);
+            text-align: center;
+            display: block;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        /* --- Project Card Styling --- */
+        .project-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header-clean {
+            padding: 20px 20px 10px 20px;
+            background: transparent;
+            border: none;
+        }
+
+        .project-title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .project-body {
+            padding: 10px 20px 20px 20px;
+            flex-grow: 1;
+        }
+
+        .project-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .meta-label { color: #94a3b8; }
+        .meta-value { font-weight: 600; color: #475569; }
+
+        .status-badge {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .card-footer-clean {
+            padding: 15px 20px 20px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+
+        .btn-view {
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .btn-delete:hover {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="/dashboard" class="sidebar-brand">APMST PRO</a>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="/dashboard" class="nav-link">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/projects" class="nav-link active">📁 Projects</a></li>
+            <li class="nav-item"><a href="/tasks" class="nav-link">✅ My Tasks</a></li>
+            <li class="nav-item"><a href="/timelog" class="nav-link">⏱️ Time Log</a></li>
+            <li class="nav-item"><a href="/scores/my-score" class="nav-link">🏅 My Score</a></li>
+			<li class="nav-item mb-2">
+			    <a href="/analytics" class="nav-link text-white">
+			        📈 Analytics
+			    </a>
+			</li>
+			
+			<!-- Notifications Bell -->
+			<li class="nav-item mb-2">
+			    <a href="/notifications" class="nav-link text-white">
+			        🔔 Notifications
+			        <span th:if="${unreadCount > 0}"
+			              class="badge bg-danger ms-1"
+			              th:text="${unreadCount}">
+			        </span>
+			    </a>
+			</li>
+			
+            <li class="nav-item"><a href="/scores/leaderboard" class="nav-link">🏆 Leaderboard</a></li>
+
+            <div sec:authorize="hasRole('ADMIN')">
+                <hr class="my-3 opacity-25">
+                <li class="nav-item"><a href="/admin/users" class="nav-link">⚙️ User Management</a></li>
+            </div>
+
+            <li class="nav-item mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger fw-bold">🚪 Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeIn">
+            <div>
+                <h2 class="fw-bold m-0">📁 Projects</h2>
+                <p class="text-muted small">Track and manage your team's agile progress.</p>
+            </div>
+            <a href="/projects/create" class="btn btn-primary px-4 py-2 rounded-3 fw-bold shadow-sm"
+               sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')">
+                + New Project
+            </a>
+        </div>
+
+        <div th:if="${param.success}" class="alert alert-success border-0 shadow-sm animate__animated animate__slideInDown">
+            ✅ Project successfully synchronized!
+        </div>
+
+        <div th:if="${#lists.isEmpty(projects)}" class="text-center py-5 animate__animated animate__fadeIn">
+            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="120" class="opacity-25 mb-3">
+            <h5 class="text-muted">No active projects found!</h5>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 animate__animated animate__fadeInUp" 
+                 th:each="project, iter : ${projects}" 
+                 th:style="'animation-delay: ' + ${iter.index * 0.1} + 's'">
+                
+                <div class="card project-card">
+                    <div class="card-header-clean d-flex justify-content-between align-items-start">
+                        <h5 class="project-title" th:text="${project.name}">Project Alpha</h5>
+                        <span class="status-badge bg-success-subtle text-success" th:text="${project.status}">Active</span>
+                    </div>
+                    
+                    <div class="project-body">
+                        <p class="project-desc" th:text="${project.description}">Building a new agile tracking system.</p>
+                        
+                        <div class="meta-item">
+                            <span class="meta-label">Lead Manager</span>
+                            <span class="meta-value text-primary" th:text="${project.manager.fullName}">Admin Name</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Duration</span>
+                            <span class="meta-value" th:text="${project.startDate + ' - ' + project.endDate}">2026-01 - 2026-04</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Team Members</span>
+                            <span class="meta-value">
+                                <span class="badge rounded-pill bg-light text-dark" th:text="${#lists.size(project.members)}">5</span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer-clean d-flex gap-2">
+                        <a th:href="@{/projects/{id}(id=${project.id})}" class="btn btn-primary btn-view w-100">
+                            View Workspace
+                        </a>
+                        <a th:href="@{/projects/delete/{id}(id=${project.id})}"
+                           class="btn btn-delete px-3"
+                           sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')"
+                           onclick="return confirm('Archive this project?')">
+                            🗑️
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

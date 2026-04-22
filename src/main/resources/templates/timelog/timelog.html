@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Log - APMST</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --accent-color: #3b82f6;
+            --body-bg: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--body-bg);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: #f8fafc;
+            padding: 24px 16px;
+            position: fixed;
+            width: 260px;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-color);
+            text-align: center;
+            display: block;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        /* --- Professional Stat Cards --- */
+        .stat-card {
+            border: none;
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover { transform: translateY(-5px); }
+
+        .bg-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .bg-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+
+        .stat-card h6 { font-weight: 400; opacity: 0.8; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card h2 { font-weight: 800; font-size: 2.2rem; margin: 0; }
+
+        /* --- Modern Table Container --- */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+        }
+
+        .table thead th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 20px;
+            border: none;
+        }
+
+        .table tbody td {
+            padding: 18px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #fcfdfe;
+        }
+
+        /* --- Description Tooltip-style --- */
+        .desc-text {
+            color: #64748b;
+            font-size: 0.85rem;
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-delete-pro {
+            color: #ef4444;
+            background: #fef2f2;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-pro:hover {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="/dashboard" class="sidebar-brand">APMST PRO</a>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="/dashboard" class="nav-link">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/projects" class="nav-link">📁 Projects</a></li>
+            <li class="nav-item"><a href="/tasks" class="nav-link">✅ My Tasks</a></li>
+            <li class="nav-item"><a href="/timelog" class="nav-link active">⏱️ Time Log</a></li>
+            <li class="nav-item"><a href="/scores/my-score" class="nav-link">🏅 My Score</a></li>
+			<li class="nav-item mb-2">
+			    <a href="/analytics" class="nav-link text-white">
+			        📈 Analytics
+			    </a>
+			</li>
+			
+			<!-- Notifications Bell -->
+			<li class="nav-item mb-2">
+			    <a href="/notifications" class="nav-link text-white">
+			        🔔 Notifications
+			        <span th:if="${unreadCount > 0}"
+			              class="badge bg-danger ms-1"
+			              th:text="${unreadCount}">
+			        </span>
+			    </a>
+			</li>
+			
+            <li class="nav-item"><a href="/scores/leaderboard" class="nav-link">🏆 Leaderboard</a></li>
+            <li class="nav-item mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger fw-bold">🚪 Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeIn">
+            <div>
+                <h2 class="fw-bold m-0">⏱️ Effort Registry</h2>
+                <p class="text-muted small">Your comprehensive history of logged hours and contributions.</p>
+            </div>
+        </div>
+
+        <div th:if="${param.success}" class="alert alert-success border-0 shadow-sm animate__animated animate__bounceIn mb-4">
+            ✅ Effort successfully recorded in the system.
+        </div>
+
+        <div class="row g-4 mb-5 animate__animated animate__fadeInUp">
+            <div class="col-md-4">
+                <div class="stat-card bg-blue">
+                    <h6>Total Productivity</h6>
+                    <h2 th:text="${totalHours} + ' hrs'">0.0 hrs</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card bg-teal">
+                    <h6>Log Entries</h6>
+                    <h2 th:text="${#lists.size(timelogs)}">0</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ref ID</th>
+                            <th>Work Item / Task</th>
+                            <th>Associated Project</th>
+                            <th>Hours</th>
+                            <th>Work Date</th>
+                            <th>Activity Details</th>
+                            <th class="text-end">Management</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="log : ${timelogs}">
+                            <td class="text-muted fw-bold" th:text="${'#' + log.id}"></td>
+                            <td class="fw-semibold" th:text="${log.task.title}">Task Name</td>
+                            <td>
+                                <span class="badge bg-light text-dark border px-3 py-2" th:text="${log.project.name}">Project A</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-primary" th:text="${log.hoursLogged} + ' hrs'">0.0 hrs</span>
+                            </td>
+                            <td th:text="${log.workDate}">2026-04-07</td>
+                            <td>
+                                <div class="desc-text" th:text="${log.workDescription}">Description...</div>
+                            </td>
+                            <td class="text-end">
+                                <a th:href="@{/timelog/delete/{id}(id=${log.id})}"
+                                   class="btn-delete-pro"
+                                   onclick="return confirm('Archive this time entry permanently?')">
+                                    🗑️ Delete
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div th:if="${#lists.isEmpty(timelogs)}" class="text-center py-5">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3232/3232230.png" width="80" class="opacity-25 mb-3" alt="No data">
+                    <h6 class="text-muted">No hours logged yet. Time to get productive!</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

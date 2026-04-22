@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - APMST</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #1e293b; /* Modern Slate */
+            --sidebar-hover: #334155;
+            --accent-color: #3b82f6;
+            --body-bg: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+
+        /* --- Sidebar Improvements --- */
+        .sidebar {
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: #f8fafc;
+            padding: 24px 16px;
+            position: fixed;
+            width: 260px;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            display: block;
+            text-align: center;
+            color: var(--accent-color);
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        .welcome-header {
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        /* --- Professional Stat Cards --- */
+        .stat-card {
+            border: none;
+            border-radius: 16px;
+            padding: 25px;
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h6 {
+            font-weight: 400;
+            opacity: 0.9;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .stat-card h2 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 2.2rem;
+        }
+
+        /* Specific Card Gradients */
+        .bg-gradient-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .bg-gradient-green { background: linear-gradient(135deg, #10b981, #059669); }
+        .bg-gradient-orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .bg-gradient-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        /* --- Content Card --- */
+        .custom-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 20px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444 !important;
+        }
+
+        .logout-btn:hover {
+            background-color: #ef4444;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <span class="sidebar-brand">APMST PRO</span>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="/dashboard" class="nav-link active">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/projects" class="nav-link">📁 Projects</a></li>
+            <li class="nav-item"><a href="/tasks" class="nav-link">✅ My Tasks</a></li>
+            <li class="nav-item"><a href="/timelog" class="nav-link">⏱️ Time Log</a></li>
+            <li class="nav-item"><a href="/scores/my-score" class="nav-link">🏅 My Score</a></li>
+			<li class="nav-item mb-2">
+			    <a href="/analytics" class="nav-link text-white">
+			        📈 Analytics
+			    </a>
+			</li>
+			
+			<!-- Notifications Bell -->
+			<li class="nav-item mb-2">
+			    <a href="/notifications" class="nav-link text-white">
+			        🔔 Notifications
+			        <span th:if="${unreadCount > 0}"
+			              class="badge bg-danger ms-1"
+			              th:text="${unreadCount}">
+			        </span>
+			    </a>
+			</li>
+			
+            <li class="nav-item"><a href="/scores/leaderboard" class="nav-link">🏆 Leaderboard</a></li>
+
+            <div sec:authorize="hasRole('ADMIN')">
+                <hr class="my-3 opacity-25">
+                <li class="nav-item"><a href="/admin/users" class="nav-link">⚙️ User Management</a></li>
+            </div>
+
+            <div sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')">
+                <li class="nav-item"><a href="/timelog/project/1" class="nav-link">📈 Team Report</a></li>
+                <li class="nav-item"><a href="/admin/users/create" class="nav-link">➕ Add User</a></li>
+            </div>
+
+            <li class="nav-item mt-auto pt-5">
+                <a href="/logout" class="nav-link logout-btn">🚪 Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <h2 class="welcome-header animate__animated animate__fadeInDown">
+            Welcome, <span sec:authentication="name" class="text-primary">User</span>! 👋
+        </h2>
+
+		<div class="row g-4 animate__animated animate__fadeInUp">
+		    <div class="col-md-3">
+		        <div class="stat-card bg-gradient-blue">
+		            <h6>Active Projects</h6>
+		            <h2 th:text="${activeProjects}">0</h2>
+		        </div>
+		    </div>
+
+		    <div class="col-md-3">
+		        <div class="stat-card bg-gradient-green">
+		            <h6>Completed Tasks</h6>
+		            <h2 th:text="${completedTasks}">0</h2>
+		        </div>
+		    </div>
+
+		    <div class="col-md-3">
+		        <div class="stat-card bg-gradient-orange">
+		            <h6>In Progress</h6>
+		            <h2 th:text="${inProgress}">0</h2>
+		        </div>
+		    </div>
+
+		    <div class="col-md-3">
+		        <div class="stat-card bg-gradient-red">
+		            <h6>Hours Logged</h6>
+		            <h2 th:text="${#numbers.formatDecimal(totalHours, 1, 1)}">0.0</h2>
+		        </div>
+		    </div>
+		</div>
+
+        <div class="card custom-card mt-5 animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="m-0">Recent Activity</h5>
+                <button class="btn btn-sm btn-outline-primary">View All</button>
+            </div>
+            <div class="card-body py-5 text-center">
+                <img src="https://cdn-icons-png.flaticon.com/512/5058/5058432.png" width="80" class="mb-3 opacity-25" alt="empty">
+                <p class="text-muted">No recent activity recorded for this week.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

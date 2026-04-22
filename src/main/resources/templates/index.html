@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APMST | Professional Project Management</title>
+    
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+	    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+	    
+	    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+	    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            color: #333; 
+            scroll-behavior: smooth;
+        }
+        .navbar { 
+            background-color: white !important; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            padding: 15px 0;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 120px 0;
+        }
+        .feature-card {
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin: 0 auto 20px;
+        }
+        section { padding: 90px 0; }
+        #about { background-color: #f8f9fa; }
+        .btn-primary { 
+            background-color: #2a5298; 
+            border: none; 
+            padding: 12px 30px; 
+            font-weight: 600;
+        }
+        .btn-outline-light:hover { color: #1e3c72; }
+        footer { background-color: #111; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary fs-3" href="#">APMST</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center fw-semibold">
+                    <li class="nav-item"><a class="nav-link px-3" href="#software-info">Software Info</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#services">Services</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#connect">Connect to Owner</a></li>
+                    <li class="nav-item ms-lg-3"><a class="btn btn-primary px-4 text-white" th:href="@{/login}">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header id="software-info" class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-4">Agile Project Management System <br> with Time Tracking</h1>
+            <p class="lead mb-5 px-md-5 mx-auto" style="max-width: 800px;">
+                A comprehensive digital ecosystem built to streamline complex project lifecycles, 
+                enhance team collaboration, and provide data-driven insights for modern organizations.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a th:href="@{/login}" class="btn btn-light btn-lg text-primary px-5 fw-bold shadow">Get Started</a>
+                <a href="#services" class="btn btn-outline-light btn-lg px-5">Explore Services</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="services">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h6 class="text-primary fw-bold text-uppercase">Our Core Services</h6>
+                <h2 class="fw-bold">Intelligent Project Management</h2>
+            </div>
+
+            <div class="row g-4 text-center">
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 feature-card">
+                        <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-layers-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Sprint Orchestration</h5>
+                        <p class="text-muted small">Efficiently plan and execute agile cycles with goal-oriented sprint management and real-time completion tracking.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 feature-card">
+                        <div class="icon-box bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-kanban-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Dynamic Kanban Flow</h5>
+                        <p class="text-muted small">A high-performance visual board for task status tracking, featuring seamless drag-and-drop workflow updates.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 feature-card">
+                        <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-clock-history fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Precision Monitoring</h5>
+                        <p class="text-muted small">Log work hours against specific tasks to monitor actual vs. estimated effort, ensuring organizational accountability.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 feature-card">
+                        <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-trophy-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Performance Scoring</h5>
+                        <p class="text-muted small">Integrated scoring system that evaluates productivity based on delivery timelines and task efficiency.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 feature-card">
+                        <div class="icon-box bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-bell-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Automated Alerts</h5>
+                        <p class="text-muted small">Contextual notification engine that keeps all stakeholders updated on critical task changes and team mentions.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 feature-card">
+                        <div class="icon-box bg-secondary bg-opacity-10 text-secondary">
+                            <i class="bi bi-graph-up-arrow fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Strategic Reporting</h5>
+                        <p class="text-muted small">Visual analytics including burndown charts and progress metrics to provide a bird’s-eye view of project health.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="fw-bold mb-4">Why Organizations Choose APMST</h2>
+                    <p class="text-muted">APMST addresses the core challenges of modern workflows: task invisibility, inaccurate estimations, and fragmented communication. We provide a centralized platform built for clarity.</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="bi bi-shield-check text-primary me-2 fs-5"></i> Secure, role-based access for multiple team levels.</li>
+                        <li class="mb-3"><i class="bi bi-lightning-charge text-primary me-2 fs-5"></i> Optimized for high-speed activity tracking and data integrity.</li>
+                        <li class="mb-3"><i class="bi bi-window-sidebar text-primary me-2 fs-5"></i> Responsive design for management from any device.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-5 bg-white rounded-4 shadow-sm text-center border border-light">
+                        <div class="mb-4">
+                            <i class="bi bi-check-all text-success" style="font-size: 5rem;"></i>
+                        </div>
+                        <h4 class="fw-bold">Ready to Start?</h4>
+                        <p class="text-muted px-4">Experience a structured approach to project management. Log in to access your customized dashboard.</p>
+                        <a th:href="@{/login}" class="btn btn-primary btn-lg mt-3 w-75 shadow-sm">Enter Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="connect" class="py-5">
+        <div class="container">
+			<div class="container">
+			    <div class="card bg-dark text-white p-5 border-0 rounded-4 shadow-lg text-center">
+			        <h2 class="fw-bold mb-3">Connect to Owner</h2>
+			        <p class="mb-4 opacity-75">For administrative inquiries, technical collaboration, or personalized setup assistance.</p>
+			        <div class="d-flex justify-content-center gap-3">
+			            <button type="button" class="btn btn-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#serviceModal">
+			                Request a Service
+			            </button>
+			            <a href="#" class="btn btn-outline-light px-4 py-2">Professional Profile</a>
+			        </div>
+			    </div>
+			</div>
+
+			<div class="modal fade text-dark" id="serviceModal" tabindex="-1" aria-hidden="true">
+			    <div class="modal-dialog modal-dialog-centered">
+			        <div class="modal-content rounded-4 border-0">
+			            <div class="modal-header border-0 pb-0">
+			                <h5 class="modal-title fw-bold">Service Request Form</h5>
+			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			            </div>
+			            <form action="/send-request" method="post">
+			                <div class="modal-body">
+			                    <div class="mb-3 text-start">
+			                        <label class="form-label small fw-bold">Your Email</label>
+			                        <input type="email" name="userEmail" class="form-control" required placeholder="name@example.com">
+			                    </div>
+			                    <div class="mb-3 text-start">
+			                        <label class="form-label small fw-bold">Service Type</label>
+			                        <select name="serviceType" class="form-select">
+			                            <option value="Technical Setup">Technical Setup</option>
+			                            <option value="Collaboration">Professional Collaboration</option>
+			                            <option value="Admin Inquiry">Administrative Inquiry</option>
+			                        </select>
+			                    </div>
+			                    <div class="mb-3 text-start">
+			                        <label class="form-label small fw-bold">Message</label>
+			                        <textarea name="message" class="form-control" rows="4" required placeholder="Describe your request..."></textarea>
+			                    </div>
+			                </div>
+			                <div class="modal-footer border-0 pt-0">
+			                    <button type="submit" class="btn btn-primary w-100 py-2 rounded-3">Send Request</button>
+			                </div>
+			            </form>
+			        </div>
+			    </div>
+			</div>
+
+			<script th:if="${param.requestSent}">
+			    document.addEventListener('DOMContentLoaded', function() {
+			        Swal.fire({
+			            title: '<strong>Request Sent!</strong>',
+			            icon: 'success',
+			            html: 'The <b>APMST Team</b> has received your inquiry. <br> We will connect with you shortly.',
+			            showCloseButton: true,
+			            focusConfirm: false,
+			            confirmButtonText: '<i class="bi bi-check-circle-fill"></i> Great!',
+			            confirmButtonColor: '#2a5298', // Matches your hero-section color
+			            buttonsStyling: true,
+			            customClass: {
+			                popup: 'animate__animated animate__fadeInDown'
+			            },
+			            backdrop: `rgba(30, 60, 114, 0.4)` // Matches your hero gradient
+			        });
+
+			        // Professional URL Cleanup (Removes ?requestSent=true from the bar)
+			        if (window.history.replaceState) {
+			            const url = window.location.protocol + "//" + window.location.host + window.location.pathname;
+			            window.history.replaceState({path: url}, '', url);
+			        }
+			    });
+			</script>
+    </section>
+
+    <footer class="py-5">
+        <div class="container text-center">
+            <h4 class="fw-bold text-white mb-4">APMST</h4>
+            <p class="mb-4 opacity-50">Providing streamlined project solutions since 2026.</p>
+            <div class="mb-4">
+                <a href="#software-info" class="text-decoration-none text-white-50 mx-2 hover-white">Home</a>
+                <a href="#services" class="text-decoration-none text-white-50 mx-2 hover-white">Services</a>
+                <a href="#about" class="text-decoration-none text-white-50 mx-2 hover-white">About</a>
+                <a th:href="@{/login}" class="text-decoration-none text-white-50 mx-2 hover-white">Login</a>
+            </div>
+            <p class="small text-white-50 mt-4">&copy; 2026 APMST Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

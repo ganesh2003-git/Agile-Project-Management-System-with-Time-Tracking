@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban - APMST PRO</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #1e293b;
+            --accent-color: #3b82f6;
+            --body-bg: #f1f5f9;
+            --column-bg: #e2e8f0;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        body {
+            background-color: var(--body-bg);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Header + Sidebar fixed, board scrolls */
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: #f8fafc;
+            padding: 24px 16px;
+            position: fixed;
+            width: 260px;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-color);
+            text-align: center;
+            display: block;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: #334155;
+            color: #fff;
+        }
+
+        /* --- Main Content & Board --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            flex-grow: 1;
+            padding-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        /* --- Column Styling --- */
+        .kanban-column {
+            min-width: 300px;
+            max-width: 300px;
+            background-color: var(--column-bg);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            max-height: 100%;
+            transition: background-color 0.2s ease;
+        }
+
+        .kanban-column-header {
+            padding: 15px 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #475569;
+        }
+
+        .task-list {
+            padding: 0 10px 10px 10px;
+            overflow-y: auto;
+            flex-grow: 1;
+            min-height: 100px;
+        }
+
+        /* --- Task Card Styling --- */
+        .kanban-task {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: grab;
+            box-shadow: var(--card-shadow);
+            border: 1px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .kanban-task:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .kanban-task.dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+            cursor: grabbing;
+        }
+
+        .drag-over {
+            background-color: #cbd5e1;
+            outline: 2px dashed var(--accent-color);
+        }
+
+        /* --- Content Details --- */
+        .task-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e293b;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .task-meta {
+            font-size: 0.8rem;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .assignee-tag {
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .view-link {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Scrollbar Styling */
+        .kanban-board::-webkit-scrollbar { height: 8px; }
+        .kanban-board::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .task-list::-webkit-scrollbar { width: 5px; }
+        .task-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Column Colors */
+        .header-backlog { border-bottom: 3px solid #64748b; }
+        .header-todo { border-bottom: 3px solid #3b82f6; }
+        .header-progress { border-bottom: 3px solid #f59e0b; }
+        .header-review { border-bottom: 3px solid #a855f7; }
+        .header-done { border-bottom: 3px solid #10b981; }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="/dashboard" class="sidebar-brand">APMST PRO</a>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="/dashboard" class="nav-link">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/projects" class="nav-link">📁 Projects</a></li>
+            <li class="nav-item"><a href="/tasks" class="nav-link">✅ My Tasks</a></li>
+			<li class="nav-item mb-2">
+			    <a href="/analytics" class="nav-link text-white">
+			        📈 Analytics
+			    </a>
+			</li>
+			
+			<!-- Notifications Bell -->
+			<li class="nav-item mb-2">
+			    <a href="/notifications" class="nav-link text-white">
+			        🔔 Notifications
+			        <span th:if="${unreadCount > 0}"
+			              class="badge bg-danger ms-1"
+			              th:text="${unreadCount}">
+			        </span>
+			    </a>
+			</li>
+			
+            <li class="nav-item"><a href="/timelog" class="nav-link">⏱️ Time Log</a></li>
+            <li class="nav-item mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger fw-bold">🚪 Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeIn">
+            <div>
+                <h2 class="fw-bold m-0">📋 Kanban Workspace</h2>
+                <p class="text-muted small">Drag and drop cards to synchronize team progress.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/projects/{id}(id=${project.id})}" class="btn btn-outline-secondary rounded-pill px-4">← Back</a>
+                <a th:href="@{/tasks/create/{id}(id=${project.id})}" class="btn btn-primary rounded-pill px-4 shadow-sm"
+                   sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')">+ Add Task</a>
+            </div>
+        </div>
+
+        <div class="kanban-board animate__animated animate__fadeInUp">
+            
+            <th:block th:each="statusData : ${ {'BACKLOG', 'TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE'} }">
+                <div class="kanban-column" 
+                     th:attr="data-status=${statusData}"
+                     ondragover="allowDrop(event)" 
+                     ondrop="drop(event)"
+                     ondragleave="dragLeave(event)">
+                    
+                    <div class="kanban-column-header" 
+                         th:classappend="${'header-' + statusData.toLowerCase().replace('_', '')}">
+                        <span th:text="${statusData.replace('_', ' ')}">STATUS</span>
+                        <span class="badge bg-white text-muted border shadow-sm" 
+                              th:text="${statusData == 'BACKLOG' ? #lists.size(backlogTasks) : 
+                                       (statusData == 'TODO' ? #lists.size(todoTasks) : 
+                                       (statusData == 'IN_PROGRESS' ? #lists.size(inProgressTasks) : 
+                                       (statusData == 'IN_REVIEW' ? #lists.size(inReviewTasks) : #lists.size(doneTasks))))}">0</span>
+                    </div>
+
+                    <div class="task-list">
+                        <th:block th:with="currentTasks=${statusData == 'BACKLOG' ? backlogTasks : 
+                                                        (statusData == 'TODO' ? todoTasks : 
+                                                        (statusData == 'IN_PROGRESS' ? inProgressTasks : 
+                                                        (statusData == 'IN_REVIEW' ? inReviewTasks : doneTasks)))}">
+                            
+                            <div th:each="task : ${currentTasks}" 
+                                 class="kanban-task animate__animated animate__fadeIn"
+                                 th:id="${'task-' + task.id}"
+                                 th:attr="data-task-id=${task.id}"
+                                 draggable="true" 
+                                 ondragstart="dragStart(event)">
+                                
+                                <span class="task-title" th:text="${task.title}">Task Title</span>
+                                
+                                <div class="task-meta">
+                                    <span class="assignee-tag" th:text="${task.assignee != null ? task.assignee.fullName : 'Unassigned'}">User</span>
+                                    <a th:href="@{/tasks/{id}(id=${task.id})}" class="view-link">Details →</a>
+                                </div>
+                            </div>
+
+                            <div th:if="${#lists.isEmpty(currentTasks)}" class="text-center py-4 text-muted small opacity-50">
+                                ⎯ Empty ⎯
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+            </th:block>
+
+        </div>
+    </div>
+
+    <form id="csrf-form" th:action="@{/tasks}" method="post" style="display:none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" id="csrf-token">
+    </form>
+
+    <script>
+        let draggedTaskId = null;
+
+        function dragStart(event) {
+            draggedTaskId = event.currentTarget.getAttribute('data-task-id');
+            event.dataTransfer.effectAllowed = "move";
+            event.currentTarget.classList.add('dragging');
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const column = event.currentTarget;
+            column.classList.remove('drag-over');
+            
+            const newStatus = column.getAttribute('data-status');
+            const taskElement = document.getElementById('task-' + draggedTaskId);
+            
+            if (taskElement && column.querySelector('.task-list')) {
+                column.querySelector('.task-list').appendChild(taskElement);
+                taskElement.classList.remove('dragging');
+                
+                // Add a small success animation to the dropped card
+                taskElement.classList.add('animate__pulse');
+                setTimeout(() => taskElement.classList.remove('animate__pulse'), 1000);
+            }
+
+            const csrfToken = document.getElementById('csrf-token').value;
+
+            // API Call to update database
+            fetch('/tasks/api/status/' + draggedTaskId + '?status=' + newStatus, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken }
+            }).then(response => {
+                if (!response.ok) {
+                    alert("Sync Error: Could not update task status.");
+                    window.location.reload(); // Refresh to correct state if API fails
+                }
+            });
+        }
+    </script>
+</body>
+</html>

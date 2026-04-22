@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - APMST</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --accent-color: #3b82f6;
+            --body-bg: #f8fafc;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07);
+        }
+
+        body {
+            background-color: var(--body-bg);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: #f8fafc;
+            padding: 24px 16px;
+            position: fixed;
+            width: 260px;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-color);
+            text-align: center;
+            display: block;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        /* --- Modern Table Styling --- */
+        .custom-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 18px;
+            border: none;
+        }
+
+        .table tbody td {
+            padding: 18px;
+            vertical-align: middle;
+            color: #1e293b;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8fafc;
+            transition: background-color 0.2s ease;
+        }
+
+        /* --- Badges & Status --- */
+        .role-badge {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .status-pill {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* --- Action Buttons --- */
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.2s;
+            margin-right: 5px;
+        }
+
+        .btn-action:hover {
+            transform: scale(1.1);
+        }
+
+        .create-btn {
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="/dashboard" class="sidebar-brand">APMST PRO</a>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="/dashboard" class="nav-link">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/projects" class="nav-link">📁 Projects</a></li>
+            <li class="nav-item"><a href="/tasks" class="nav-link">✅ My Tasks</a></li>
+            <li class="nav-item"><a href="/timelog" class="nav-link">⏱️ Time Log</a></li>
+            <li class="nav-item"><a href="/scores/my-score" class="nav-link">🏅 My Score</a></li>
+			<li class="nav-item mb-2">
+			    <a href="/analytics" class="nav-link text-white">
+			        📈 Analytics
+			    </a>
+			</li>
+			
+			<!-- Notifications Bell -->
+			<li class="nav-item mb-2">
+			    <a href="/notifications" class="nav-link text-white">
+			        🔔 Notifications
+			        <span th:if="${unreadCount > 0}"
+			              class="badge bg-danger ms-1"
+			              th:text="${unreadCount}">
+			        </span>
+			    </a>
+			</li>
+			
+            <li class="nav-item"><a href="/scores/leaderboard" class="nav-link">🏆 Leaderboard</a></li>
+
+            <div sec:authorize="hasRole('ADMIN')">
+                <hr class="my-3 opacity-25">
+                <li class="nav-item"><a href="/admin/users" class="nav-link active">⚙️ User Management</a></li>
+            </div>
+
+            <li class="nav-item mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger fw-bold">🚪 Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        
+        <div class="page-header d-flex justify-content-between align-items-center animate__animated animate__fadeIn">
+            <div>
+                <h2 class="fw-bold mb-1">User Management</h2>
+                <p class="text-muted small">Manage system users, roles, and account status.</p>
+            </div>
+            <a href="/admin/users/create" class="btn btn-primary create-btn animate__animated animate__bounceIn">
+                + Create New User
+            </a>
+        </div>
+
+        <div th:if="${param.success}" class="alert alert-success border-0 shadow-sm animate__animated animate__headShake">
+            ✅ <strong>Success!</strong> User account has been created effectively.
+        </div>
+
+        <div class="card custom-card animate__animated animate__fadeInUp">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Full Name</th>
+                            <th>Email Address</th>
+                            <th>System Role</th>
+                            <th>Points</th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}">
+                            <td class="fw-bold text-muted" th:text="${'#' + user.id}"></td>
+                            <td class="fw-semibold" th:text="${user.fullName}"></td>
+                            <td th:text="${user.email}"></td>
+                            <td>
+                                <span class="role-badge" th:text="${user.role}">ADMIN</span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark border" th:text="${user.points}">0</span>
+                            </td>
+                            <td>
+                                <span th:if="${user.active}" class="status-pill bg-success-subtle text-success">
+                                    ● Active
+                                </span>
+                                <span th:unless="${user.active}" class="status-pill bg-danger-subtle text-danger">
+                                    ● Inactive
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a th:href="@{/admin/users/toggle/{id}(id=${user.id})}" 
+                                   class="btn btn-light btn-action text-warning border" title="Toggle Status">
+                                    🔄
+                                </a>
+                                <a th:href="@{/admin/users/delete/{id}(id=${user.id})}" 
+                                   class="btn btn-light btn-action text-danger border" 
+                                   onclick="return confirm('Delete this user permanently?')" title="Delete User">
+                                    🗑️
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(users)}">
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                No users found in the database.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

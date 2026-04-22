@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details - APMST</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --accent-color: #3b82f6;
+            --body-bg: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--body-bg);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: #f8fafc;
+            padding: 24px 16px;
+            position: fixed;
+            width: 260px;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-color);
+            text-align: center;
+            display: block;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        .detail-card {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .card-header-pro {
+            padding: 20px 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .member-item {
+            border: none;
+            padding: 15px 25px;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .member-item:hover { background-color: #f8fafc; }
+
+        .role-pill {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .action-bar {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-pro {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-kanban {
+            background-color: #fff8eb;
+            color: #d97706;
+            border: 1px solid #fef3c7;
+        }
+
+        .btn-kanban:hover {
+            background-color: #fef3c7;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="/dashboard" class="sidebar-brand">APMST PRO</a>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="/dashboard" class="nav-link">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/projects" class="nav-link active">📁 Projects</a></li>
+            <li class="nav-item"><a href="/tasks" class="nav-link">✅ My Tasks</a></li>
+            <li class="nav-item"><a href="/timelog" class="nav-link">⏱️ Time Log</a></li>
+            <li class="nav-item"><a href="/scores/my-score" class="nav-link">🏅 My Score</a></li>
+			<li class="nav-item mb-2">
+			    <a href="/analytics" class="nav-link text-white">
+			        📈 Analytics
+			    </a>
+			</li>
+            
+            <li class="nav-item mb-2">
+                <a href="/notifications" class="nav-link text-white">
+                    🔔 Notifications
+                    <span th:if="${unreadCount > 0}" class="badge bg-danger ms-1" th:text="${unreadCount}"></span>
+                </a>
+            </li>
+            
+            <li class="nav-item"><a href="/scores/leaderboard" class="nav-link">🏆 Leaderboard</a></li>
+            <li class="nav-item mt-auto pt-5">
+                <a href="/logout" class="nav-link text-danger fw-bold">🚪 Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+
+        <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeIn">
+            <div>
+                <h2 class="fw-bold m-0 text-primary">📁 <span th:text="${project.name}">Project Name</span></h2>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 mt-2" 
+                      th:text="${project.status}">Active</span>
+            </div>
+            <a href="/projects" class="btn btn-outline-secondary btn-pro">
+                ← Back to Projects
+            </a>
+        </div>
+
+       <div class="row g-4 mb-4">
+    
+    <div class="col-lg-7 animate__animated animate__fadeInLeft">
+        <div class="detail-card">
+            <div class="card-header-pro">
+                <span>ℹ️</span> General Information
+            </div>
+            <div class="card-body p-4">
+                <span class="info-label">Description</span>
+                <p class="info-value mb-4 text-muted fw-normal" th:text="${project.description}">Project description...</p>
+                
+                <div class="row">
+                    <div class="col-6">
+                        <span class="info-label">Project Manager</span>
+                        <span class="info-value" th:text="${project.manager.fullName}">Manager Name</span>
+                        
+                        <span class="info-label">Starting On</span>
+                        <span class="info-value" th:text="${project.startDate}">2026-01-01</span>
+                    </div>
+                    <div class="col-6">
+                        <span class="info-label">Current Status</span>
+                        <span class="info-value text-success" th:text="${project.status}">In Progress</span>
+                        
+                        <span class="info-label">Target Completion</span>
+                        <span class="info-value" th:text="${project.endDate}">2026-12-31</span>
+                    </div>
+                </div>
+
+                <hr class="opacity-10">
+                <div class="mt-4">
+                    <span class="info-label mb-2 d-block"><i class="bi bi-folder2-open me-1"></i> Local Development Path</span>
+                    <form th:action="@{/projects/path/{id}(id=${project.id})}" method="post">
+                        <div class="input-group">
+                            <input type="text" name="localPath" class="form-control form-control-sm border-secondary-subtle" 
+                                   th:value="${project.localProjectPath}" placeholder="C:/Users/Path/To/Project">
+                            <button type="submit" class="btn btn-dark btn-sm">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5 animate__animated animate__fadeInRight">
+        <div class="detail-card">
+            <div class="card-header-pro">
+                <span>👥</span> Project Squad
+            </div>
+            <div class="card-body p-0" style="max-height: 450px; overflow-y: auto;">
+                <div class="member-item border-bottom" th:each="member : ${project.members}">
+                    <div>
+                        <span class="fw-bold d-block" th:text="${member.fullName}">User Name</span>
+                        <span class="text-muted small" th:text="${member.email}">email@company.com</span>
+                    </div>
+                    <span class="role-pill" th:text="${member.role}">Developer</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="action-bar animate__animated animate__fadeInUp">
+            <a th:href="@{/tasks/create/{id}(id=${project.id})}"
+               class="btn btn-primary btn-pro shadow-sm"
+               sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')">
+                ➕ Add New Task
+            </a>
+            <a th:href="@{/projects/{id}/kanban(id=${project.id})}"
+               class="btn btn-kanban btn-pro">
+                📋 Kanban Workspace
+            </a>
+            <button class="btn btn-light btn-pro ms-auto">📥 Export Report</button>
+        </div>
+    </div>
+</div>
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

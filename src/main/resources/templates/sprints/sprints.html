@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Sprints - APMST</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f0f2f5; }
+        .sidebar {
+            height: 100vh;
+            background-color: #0d6efd;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            width: 250px;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        .sprint-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        .sprint-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+
+	<ul class="nav flex-column">
+
+	    <!-- Common for ALL roles -->
+	    <li class="nav-item mb-2">
+	        <a href="/dashboard" class="nav-link text-white">
+	            📊 Dashboard
+	        </a>
+	    </li>
+
+	    <li class="nav-item mb-2">
+	        <a href="/projects" class="nav-link text-white">
+	            📁 Projects
+	        </a>
+	    </li>
+
+	    <li class="nav-item mb-2">
+	        <a href="/tasks" class="nav-link text-white">
+	            ✅ My Tasks
+	        </a>
+	    </li>
+
+	    <li class="nav-item mb-2">
+	        <a href="/timelog" class="nav-link text-white">
+	            ⏱️ Time Log
+	        </a>
+	    </li>
+
+	    <li class="nav-item mb-2">
+	        <a href="/scores/my-score" class="nav-link text-white">
+	            🏅 My Score
+	        </a>
+	    </li>
+		<li class="nav-item mb-2">
+		    <a href="/analytics" class="nav-link text-white">
+		        📈 Analytics
+		    </a>
+		</li>
+		
+		<!-- Notifications Bell -->
+		<li class="nav-item mb-2">
+		    <a href="/notifications" class="nav-link text-white">
+		        🔔 Notifications
+		        <span th:if="${unreadCount > 0}"
+		              class="badge bg-danger ms-1"
+		              th:text="${unreadCount}">
+		        </span>
+		    </a>
+		</li>
+
+	    <li class="nav-item mb-2">
+	        <a href="/scores/leaderboard" class="nav-link text-white">
+	            🏆 Leaderboard
+	        </a>
+	    </li>
+
+	    <!-- ADMIN only -->
+	    <li class="nav-item mb-2"
+	        sec:authorize="hasRole('ADMIN')">
+	        <a href="/admin/users" class="nav-link text-white">
+	            ⚙️ User Management
+	        </a>
+	    </li>
+
+	    <!-- ADMIN and MANAGER only -->
+	    <li class="nav-item mb-2"
+	        sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')">
+	        <a href="/timelog/project/1" class="nav-link text-white">
+	            📊 Team Time Report
+	        </a>
+	    </li>
+
+	    <!-- ADMIN and MANAGER only -->
+	    <li class="nav-item mb-2"
+	        sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')">
+	        <a href="/admin/users/create" class="nav-link text-white">
+	            ➕ Add User
+	        </a>
+	    </li>
+
+	    <li class="nav-item mt-5">
+	        <a href="/logout" class="nav-link text-white">
+	            🚪 Logout
+	        </a>
+	    </li>
+
+	</ul>
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <div class="d-flex justify-content-between
+                     align-items-center mb-4">
+            <div>
+                <h2>🏃 Sprints</h2>
+                <p class="text-muted">
+                    Project: 
+                    <strong th:text="${project.name}"></strong>
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/projects/{id}(id=${project.id})}"
+                   class="btn btn-secondary">
+                    ← Back to Project
+                </a>
+                <a th:href="@{/sprints/create/{id}(id=${project.id})}"
+                   class="btn btn-primary"
+                   sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')">
+                    + Create Sprint
+                </a>
+            </div>
+        </div>
+
+        <!-- Success message -->
+        <div th:if="${param.success}"
+             class="alert alert-success">
+            ✅ Sprint created successfully!
+        </div>
+
+        <!-- No sprints message -->
+        <div th:if="${#lists.isEmpty(sprints)}"
+             class="alert alert-info">
+            No sprints found! Create your first sprint.
+        </div>
+
+        <!-- Sprints List -->
+        <div class="row">
+            <div class="col-md-4"
+                 th:each="sprint : ${sprints}">
+                <div class="card sprint-card">
+                    <div class="card-header text-white"
+                         th:classappend="${sprint.status == T(com.apmst.enums.SprintStatus).ACTIVE} ? 'bg-success' :
+                                         (${sprint.status == T(com.apmst.enums.SprintStatus).COMPLETED} ? 'bg-secondary' : 'bg-primary')">
+                        <h5 th:text="${sprint.name}"></h5>
+                    </div>
+                    <div class="card-body">
+                        <p th:text="${sprint.goal}"
+                           class="text-muted"></p>
+                        <p>
+                            <strong>Status:</strong>
+                            <span th:text="${sprint.status}"
+                                  class="badge bg-primary">
+                            </span>
+                        </p>
+                        <p>
+                            <strong>Start:</strong>
+                            <span th:text="${sprint.startDate}"></span>
+                        </p>
+                        <p>
+                            <strong>End:</strong>
+                            <span th:text="${sprint.endDate}"></span>
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex gap-2">
+                        <a th:href="@{/sprints/{id}(id=${sprint.id})}"
+                           class="btn btn-sm btn-primary w-100">
+                            View Details
+                        </a>
+                        <a th:href="@{/sprints/delete/{id}(id=${sprint.id})}"
+                           class="btn btn-sm btn-danger w-100"
+                           sec:authorize="hasAnyRole('ADMIN','PROJECT_MANAGER')"
+                           onclick="return confirm('Are you sure?')">
+                            Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
